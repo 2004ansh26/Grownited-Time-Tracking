@@ -32,12 +32,74 @@ export const AddProject = () => {
         setSelectedDevelopers(selectedOptions);
     };
 
+    // const submitHandler = async (data) => {
+    //     try {
+    //         data.estimatedHours = parseInt(data.estimatedHours);
+    //         data.startDate = new Date(data.startDate).toISOString();
+    //         data.completionDate = new Date(data.completionDate).toISOString();
+    //         data.assignedDevelopers = selectedDevelopers;
+    //         console.log(data);
+
+    //         const res = await axios.post("/addProject", data);
+    //         setMessage(res.data.Message);
+
+    //         toast.success("🎉 Project added successfully!", {
+    //             position: "top-center",
+    //             autoClose: 3000,
+    //             hideProgressBar: false,
+    //             closeOnClick: false,
+    //             pauseOnHover: true,
+    //             draggable: true,
+    //             theme: "light",
+    //             transition: Slide,
+    //         });
+    //     } catch (error) {
+    //         console.error("Error adding project", error);
+    //         setMessage("Failed to add project");
+    //         toast.error("❌ Failed to add project!", {
+    //             position: "top-center",
+    //             autoClose: 3000,
+    //             hideProgressBar: false,
+    //             closeOnClick: false,
+    //             pauseOnHover: true,
+    //             draggable: true,
+    //             theme: "light",
+    //             transition: Slide,
+    //         });
+    //     }
+    // };
+    
     const submitHandler = async (data) => {
+        if (new Date(data.completionDate) <= new Date(data.startDate)) {
+            toast.error("❌ Completion date must be after the start date!", { position: "top-center" });
+            return;
+        }
+        const userId = localStorage.getItem("id"); // Make sure "id" matches what you stored
+            if (!userId) {
+                toast.error("❌ User ID not found. Please log in again.");
+                return;
+            }
+
         try {
+
+             // Retrieve user ID from localStorage
+                
+            data.userId = userId;   
             data.estimatedHours = parseInt(data.estimatedHours);
             data.startDate = new Date(data.startDate).toISOString();
             data.completionDate = new Date(data.completionDate).toISOString();
-            data.assignedDevelopers = selectedDevelopers;
+            data.assignedDevelopers = selectedDevelopers; // Assign selected developers
+            // data.assignedDevelopers = JSON.stringify(
+            //     developers
+            //         .filter(dev => selectedDevelopers.includes(dev._id))
+            //         .map(dev => dev._id)
+            // );
+            data.assignedDevelopers = developers
+            .filter(dev => selectedDevelopers.includes(dev._id))
+            .map(dev => dev._id);
+
+            
+            
             console.log(data);
 
             const res = await axios.post("/addProject", data);
@@ -68,7 +130,9 @@ export const AddProject = () => {
             });
         }
     };
-    
+
+  
+  
     return (
       <div>
           <Navbar />
